@@ -137,15 +137,6 @@ app.use(express.json());
 
 app.post('/*', async (req, res) => {
   
-  if(req.body) {
-    console.log('req.body found. typeOf is:')
-    console.log(typeof(req.body))
-    console.log('printing properties:')
-    for(var prop in req.body){
-      console.log(prop);                      // Just get the property name only  
-      //console.log(req[prop]);   
-    }
-  }
   if (!req.body) {
     const msg = 'no Pub/Sub message received';
     console.error(`error: ${msg}`);
@@ -157,6 +148,16 @@ app.post('/*', async (req, res) => {
     console.error(`error: ${msg}`);
     res.status(204).send(`Bad Request: ${msg}`);
     return;
+  }
+
+  if(req.body.message) {
+    console.log('req.body.message found. typeOf is:')
+    console.log(typeof(req.body.message))
+    console.log('printing properties:')
+    for(var prop in req.body.message){
+      console.log(prop);                      // Just get the property name only  
+      //console.log(req[prop]);   
+    }
   }
 
   if (req.body.message.attributes.eventType === 'OBJECT_DELETE') {
