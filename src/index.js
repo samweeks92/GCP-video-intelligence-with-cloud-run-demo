@@ -76,7 +76,7 @@ async function analyzeFile(gcsUri, features) {
 async function saveToGCS(annotationResults) {
   console.log('saving to GCS...')
   
-  const bucketName = 'video-intelligence-output'
+  const bucketName = 'clip-insights'
   const sourceFileName = annotationResults.inputUri.split('/').pop().split('.').shift()
   const timestamp = new Date().toLocaleString("en-GB", {timeZone: "GB"}).replaceAll(':','-').replaceAll(',','-').replaceAll('/','-').replaceAll(' ', '')
   const destFileName = sourceFileName + '-' + timestamp + '.json'
@@ -150,27 +150,16 @@ app.post('/*', async (req, res) => {
     return;
   }
 
-  if(req.body.message.attributes) {
-    console.log('req.body.message.attributes found. typeOf is:')
-    console.log(typeof(req.body.message.attributes))
-    console.log('printing properties of req.body.message.attributes:')
-    for(var prop in req.body.message.attributes){
-      console.log('req.body.message.attributes', prop);                      // Just get the property name only  
-      console.log('req.body.message.attributes', prop, req.body.message.attributes[prop]);   
-    }
+  if (req.body.message.attributes.eventType === 'OBJECT_DELETE') {
+    console.log('pubsub notification is referencing an object deletion. No new data to send to the Video Intelligence API')
+    return ('', 204)
   }
-
-  // if (req.body.message.attributes.eventType === 'OBJECT_DELETE') {
-  //   console.log('pubsub notification is referencing an object deletion. No new data to send to the Video Intelligence API')
-  //   return ('', 204)
-  // }
   
   const bucketID = req.body.message.attributes.bucketId
   const fileName = req.body.message.attributes.objectId
 
   const gcsUri = `gs://${bucketID}/${fileName}`
-  console.log("HERE IS THE GCS URI ------- ")
-  console.log(gcsUri)
+  console.log("SOURCE GCS OBJECT URI: ", gcsUri)
 
   await analyzeFile(gcsUri, req.originalUrl.toUpperCase().trim().replaceAll('-', '_').replace('/', '')).then((annotationResults) => {
     saveToGCS(annotationResults).then((uploadedFileDetails) => {
