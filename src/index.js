@@ -150,13 +150,13 @@ app.post('/*', async (req, res) => {
     return;
   }
 
-  if(req.body.message) {
-    console.log('req.body.message found. typeOf is:')
-    console.log(typeof(req.body.message))
-    console.log('printing properties of req.body.message:')
-    for(var prop in req.body.message){
-      console.log('req.body.message.', prop);                      // Just get the property name only  
-      console.log('req.body.message.', prop, req.body.message[prop]);   
+  if(req.body.message.attributes) {
+    console.log('req.body.message.attributes found. typeOf is:')
+    console.log(typeof(req.body.message.attributes))
+    console.log('printing properties of req.body.message.attributes:')
+    for(var prop in req.body.message.attributes){
+      console.log('req.body.message.attributes', prop);                      // Just get the property name only  
+      console.log('req.body.message.attributes', prop, req.body.message.attributes[prop]);   
     }
   }
 
