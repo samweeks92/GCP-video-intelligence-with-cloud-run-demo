@@ -15,8 +15,7 @@ steps:
     --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
     --region=$_TARGET_REGION
     --project=$_DEPLOY_PROJECT_ID
-    --port=$_PORT
-    --set-env-vars=SENDGRID_API_KEY=$$SENDGRID_API_KEY'
+    --port=$_PORT'
 images:
   - '$_TARGET_REGION-docker.pkg.dev/$_DEPLOY_PROJECT_ID/$_SERVICE_NAME/$_CONTAINER_NAME:$COMMIT_SHA'
   - '$_TARGET_REGION-docker.pkg.dev/$_DEPLOY_PROJECT_ID/$_SERVICE_NAME/$_CONTAINER_NAME:latest'
