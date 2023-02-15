@@ -142,7 +142,7 @@ app.post('/*', async (req, res) => {
     console.log('printing properties:')
     for(var prop in req){
       console.log(prop);                      // Just get the property name only  
-      console.log(result[prop]);   
+      console.log(req[prop]);   
     }
   }
   if (!req.body) {
