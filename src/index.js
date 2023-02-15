@@ -133,6 +133,7 @@ async function saveToBigQuery(uploadedFileDetails) {
 
 const express = require('express');
 const app = express();
+app.use(express.json());
 
 app.post('/*', async (req, res) => {
   
@@ -148,13 +149,13 @@ app.post('/*', async (req, res) => {
   if (!req.body) {
     const msg = 'no Pub/Sub message received';
     console.error(`error: ${msg}`);
-    res.status(400).send(`Bad Request: ${msg}`);
+    res.status(204).send(`Bad Request: ${msg}`);
     return;
   }
   if (!req.body.message) {
     const msg = 'invalid Pub/Sub message format';
     console.error(`error: ${msg}`);
-    res.status(400).send(`Bad Request: ${msg}`);
+    res.status(204).send(`Bad Request: ${msg}`);
     return;
   }
 
