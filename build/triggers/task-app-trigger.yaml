@@ -1,0 +1,14 @@
+name: video-intelligence-demo-trigger
+description: video-intelligence-demo Trigger
+filename: build/cloudbuild.yaml
+triggerTemplate:
+  repoName: github_samweeks92_gcp-video-intelligence-with-cloud-run-demo
+  projectId: video-intelligence-377909
+  branchName: ^main$
+substitutions:
+  _DEPLOY_PROJECT_ID: video-intelligence-377909
+  _SERVICE_NAME: videointelligencedemo
+  _CONTAINER_NAME: video-intelligence-file-listener
+  _PLATFORM: managed
+  _TARGET_REGION: europe-west2
+  _PORT: '8080'

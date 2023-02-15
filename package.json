@@ -1,0 +1,29 @@
+{
+  "name": "gcp-video-intelligence-demo",
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "*.js",
+    "resources"
+  ],
+  "author": "Sam Weeks",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "scripts": {
+    "test": "mocha system-test --timeout=800000",
+    "start": "node src/index.js",
+    "dev": "env-cmd -f ./config/dev.env nodemon node src/index-dev.js"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^6.1.0",
+    "@google-cloud/storage": "^6.9.3",
+    "@google-cloud/video-intelligence": "^4.1.1",
+    "env-cmd": "^10.1.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^10.0.0"
+  }
+}
