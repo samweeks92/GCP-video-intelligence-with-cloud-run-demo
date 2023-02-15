@@ -166,7 +166,7 @@ app.post('/*', async (req, res) => {
   // }
   
   const bucketID = req.body.message.attributes.bucketId
-  const fileName = req.body.message.attributes.fileName
+  const fileName = req.body.message.attributes.objectId
 
   const gcsUri = `gs://${bucketID}/${fileName}`
   console.log("HERE IS THE GCS URI ------- ")
