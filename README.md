@@ -42,4 +42,6 @@ gcloud pubsub subscriptions create videointelligencedemo --topic $PUBSUB_TOPIC_N
 --ack-deadline=600 \
 --push-endpoint=$CLOUD_RUN_SERVICE_URL/ --push-auth-service-account=cloud-run-pubsub-invoker@$DEPLOY_PROJECT_ID.iam.gserviceaccount.com
 
-gcloud pubsub topics publish $PUBSUB_TOPIC_NAME --message "hello"
+gcloud projects add-iam-policy-binding $DEPLOY_PROJECT_ID \
+   --member=serviceAccount:service-$DEPLOY_PROJECT_NUMBER@developer.gserviceaccount.comm \
+   --role=roles/iam.serviceAccountTokenCreator

@@ -80,7 +80,7 @@ async function saveToGCS(annotationResults) {
   const sourceFileName = annotationResults.inputUri.split('/').pop().split('.').shift()
   const timestamp = new Date().toLocaleString("en-GB", {timeZone: "GB"}).replaceAll(':','-').replaceAll(',','-').replaceAll('/','-').replaceAll(' ', '')
   const destFileName = sourceFileName + '-' + timestamp + '.json'
-  const contents = JSON.stringify(annotationResults).replaceAll('{}', 'null')
+  const contents = JSON.stringify(annotationResults).replaceAll('{}', '{"seconds":"0","nanos":0}')
 
   const storage = new Storage();
   await storage.bucket(bucketName).file(destFileName).save(contents);
