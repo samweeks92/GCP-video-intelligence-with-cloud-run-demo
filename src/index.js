@@ -136,6 +136,8 @@ const app = express();
 
 app.post('/*', async (req, res) => {
   
+  console.log('req:')
+  console.log(req)
   if (!req.body) {
     const msg = 'no Pub/Sub message received';
     console.error(`error: ${msg}`);
