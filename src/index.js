@@ -160,16 +160,6 @@ app.post('/*', async (req, res) => {
     }
   }
 
-  if(req.body.message.data) {
-    console.log('req.body.message.data found. typeOf is:')
-    console.log(typeof(req.body.message.data))
-    console.log('printing properties:')
-    for(var prop in req.body.message.data){
-      console.log('req.body.message.data.', prop);                      // Just get the property name only  
-      console.log('req.body.message.data.', prop, req.body.message.data[prop]);   
-    }
-  }
-
   // if (req.body.message.attributes.eventType === 'OBJECT_DELETE') {
   //   console.log('pubsub notification is referencing an object deletion. No new data to send to the Video Intelligence API')
   //   return ('', 204)
