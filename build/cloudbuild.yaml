@@ -18,7 +18,6 @@ steps:
     --port=$_PORT'
 images:
   - '$_TARGET_REGION-docker.pkg.dev/$_DEPLOY_PROJECT_ID/$_SERVICE_NAME/$_CONTAINER_NAME:$COMMIT_SHA'
-  - '$_TARGET_REGION-docker.pkg.dev/$_DEPLOY_PROJECT_ID/$_SERVICE_NAME/$_CONTAINER_NAME:latest'
 tags:
     - gcp-cloud-build-deploy-cloud-run
     - gcp-cloud-build-deploy-cloud-run-managed
