@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', $_TARGET_REGION-docker.pkg.dev/$_DEPLOY_PROJECT_ID/$_SERVICE_NAME/$_CONTAINER_NAME:$COMMIT_SHA', '.' ]
+  args: [ 'build', '-t', '$_TARGET_REGION-docker.pkg.dev/$_DEPLOY_PROJECT_ID/$_SERVICE_NAME/$_CONTAINER_NAME:$COMMIT_SHA', '.' ]
 # Push with Commit SHA as Tag
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '$_TARGET_REGION-docker.pkg.dev/$_DEPLOY_PROJECT_ID/$_SERVICE_NAME/$_CONTAINER_NAME:$COMMIT_SHA']
