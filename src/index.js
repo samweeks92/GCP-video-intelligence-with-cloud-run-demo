@@ -137,11 +137,11 @@ app.use(express.json());
 
 app.post('/*', async (req, res) => {
   
-  if(req) {
-    console.log('request found. typeOf is:')
-    console.log(typeof(req))
+  if(req.body) {
+    console.log('req.body found. typeOf is:')
+    console.log(typeof(req.body))
     console.log('printing properties:')
-    for(var prop in req){
+    for(var prop in req.body){
       console.log(prop);                      // Just get the property name only  
       //console.log(req[prop]);   
     }
