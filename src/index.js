@@ -143,6 +143,7 @@ app.post('/*', async (req, res) => {
     for(var prop in req){
       console.log(prop);                      // Just get the property name only  
       console.log(result[prop]);   
+    }
   }
   if (!req.body) {
     const msg = 'no Pub/Sub message received';
