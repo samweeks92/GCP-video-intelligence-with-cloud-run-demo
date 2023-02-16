@@ -24,7 +24,7 @@ async function analyzeFile(gcsUri) {
   // 'LOGO_RECOGNITION // recognizes logos in a video
   // 'OBJECT_TRACKING' // like Lebel Detection but also provides bounding boxes of the locations of the objects
 
-  if (process.env.ALL_FEATURES) {
+  if (process.env.ALL_FEATURES === 'true') {
     request.features = ['LABEL_DETECTION', 'SHOT_CHANGE_DETECTION', 'EXPLICIT_CONTENT_DETECTION', 'SPEECH_TRANSCRIPTION', 'TEXT_DETECTION', 'FACE_DETECTION', 'PERSON_DETECTION', 'LOGO_RECOGNITION'] //'OBJECT_TRACKING' is not enabled unless explicitely stated in request params given the additional latency it creates.
     request.videoContext = {
       speechTranscriptionConfig: {
@@ -34,19 +34,19 @@ async function analyzeFile(gcsUri) {
     }   
   }
   
-  if (process.env.FEATURE_LABEL_DETECTION){
+  if (process.env.FEATURE_LABEL_DETECTION === 'true'){
     request.features.push('LABEL_DETECTION')
   }
 
-  if (process.envFEATURE_SHOT_CHANGE_DETECTION){
+  if (process.env.FEATURE_SHOT_CHANGE_DETECTION === 'true'){
     request.features.push('SHOT_CHANGE_DETECTION')
   }
 
-  if (process.env.FEATURE_EXPLICIT_CONTENT_DETECTION){
+  if (process.env.FEATURE_EXPLICIT_CONTENT_DETECTION === 'true'){
     request.features.push('EXPLICIT_CONTENT_DETECTION')
   }
   
-  if (process.env.FEATURE_SPEECH_TRANSCRIPTION){
+  if (process.env.FEATURE_SPEECH_TRANSCRIPTION === 'true'){
     request.features.push('SPEECH_TRANSCRIPTION')
     request.videoContext = {
       speechTranscriptionConfig: {
@@ -56,11 +56,11 @@ async function analyzeFile(gcsUri) {
     }   
   }
 
-  if (process.env.FEATURE_TEXT_DETECTION){
+  if (process.env.FEATURE_TEXT_DETECTION === 'true'){
     request.features.push('TEXT_DETECTION')
   }
 
-  if (process.env.FEATURE_FACE_DETECTION){
+  if (process.env.FEATURE_FACE_DETECTION === 'true'){
     request.features.push('FACE_DETECTION')
     request.videoContext.faceDetectionConfig = {
       speechTranscriptionConfig: {
@@ -70,7 +70,7 @@ async function analyzeFile(gcsUri) {
     }   
   }
 
-  if (process.env.FEATURE_PERSON_DETECTION){
+  if (process.env.FEATURE_PERSON_DETECTION === 'true'){
     request.features.push('PERSON_DETECTION')
     request.videoContext.personDetectionConfig = {
       speechTranscriptionConfig: {
@@ -81,11 +81,11 @@ async function analyzeFile(gcsUri) {
     }   
   }
 
-  if (process.env.FEATURE_LOGO_RECOGNITION){
+  if (process.env.FEATURE_LOGO_RECOGNITION === 'true'){
     request.features.push('LOGO_RECOGNITION')
   }
 
-  if (process.env.FEATURE_OBJECT_TRACKING){
+  if (process.env.FEATURE_OBJECT_TRACKING === 'true'){
     request.features.push('OBJECT_TRACKING')
     request.locationId = 'us-east1' //recommended to use us-east1 for the best latency due to different types of processors used in this region and others
   }
