@@ -16,6 +16,7 @@ steps:
     --region=$_TARGET_REGION
     --project=$_DEPLOY_PROJECT_ID
     --port=$_PORT
+    --concurrency=1
     --timeout=15m
     --set-env-vars=BQ_DATASET_ID=$_BQ_DATASET_ID
     --set-env-vars=BQ_DATASET_TABLE=$_BQ_DATASET_TABLE
