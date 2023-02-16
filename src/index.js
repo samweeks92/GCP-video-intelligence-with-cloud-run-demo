@@ -20,9 +20,11 @@ async function analyzeFile(gcsUri, features) {
   // 'SPEECH_TRANSCRIPTION' // transcribe speech in the video into text
   // 'TEXT_DETECTION' // Detects text in a video
   // 'OBJECT_TRACKING' // like Lebel Detection but also provides bounding boxes of the locations of the objects
+  // 'FACE_DETECTION' // looks for faces in a video
+  // 'PERSON_DETECTION' // looks for people in a video
   
   if (!features || features === 'ALL') {
-    request.features = ['LABEL_DETECTION', 'SHOT_CHANGE_DETECTION', 'EXPLICIT_CONTENT_DETECTION', 'SPEECH_TRANSCRIPTION', 'TEXT_DETECTION'] //'OBJECT_TRACKING' is not enabled unless explicitely stated in request params given the additional latency it creates.
+    request.features = ['LABEL_DETECTION', 'SHOT_CHANGE_DETECTION', 'EXPLICIT_CONTENT_DETECTION', 'SPEECH_TRANSCRIPTION', 'TEXT_DETECTION', 'FACE_DETECTION', 'PERSON_DETECTION', 'LOGO_RECOGNITION'] //'OBJECT_TRACKING' is not enabled unless explicitely stated in request params given the additional latency it creates.
     request.videoContext = {
       speechTranscriptionConfig: {
         languageCode: 'en-US',
@@ -60,6 +62,31 @@ async function analyzeFile(gcsUri, features) {
   if (features.includes('OBJECT_TRACKING')){
     request.features.push('OBJECT_TRACKING')
     request.locationId = 'us-east1' //recommended to use us-east1 for the best latency due to different types of processors used in this region and others
+  }
+
+  if (features.includes('FACE_DETECTION')){
+    request.features.push('FACE_DETECTION')
+    request.videoContext.faceDetectionConfig = {
+      speechTranscriptionConfig: {
+        includeBoundingBoxes: true,
+        includeAttributes: true
+      },
+    }   
+  }
+
+  if (features.includes('PERSON_DETECTION')){
+    request.features.push('PERSON_DETECTION')
+    request.videoContext.personDetectionConfig = {
+      speechTranscriptionConfig: {
+        includeBoundingBoxes: true,
+        includePoseLandmarks: true,
+        includeAttributes: true
+      },
+    }   
+  }
+
+  if (features.includes('LOGO_RECOGNITION')){
+    request.features.push('LOGO_RECOGNITION')
   }
 
   console.log('Analyzing file with Video Intelligence API...');
@@ -161,7 +188,9 @@ app.post('/*', async (req, res) => {
   const gcsUri = `gs://${bucketID}/${fileName}`
   console.log("SOURCE GCS OBJECT URI: ", gcsUri)
 
-  await analyzeFile(gcsUri, req.originalUrl.toUpperCase().trim().replaceAll('-', '_').replace('/', '')).then((annotationResults) => {
+  const features = req.originalUrl.toUpperCase().trim().replaceAll('-', '_').replace('/', '')
+
+  await analyzeFile(gcsUri, features).then((annotationResults) => {
     saveToGCS(annotationResults).then((uploadedFileDetails) => {
       saveToBigQuery(uploadedFileDetails).then((response) => {
         res.status(200).send(annotationResults)
