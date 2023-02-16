@@ -11,7 +11,8 @@ async function analyzeFile(gcsUri) {
 
   const request = {
     inputUri: gcsUri,
-    features: [],
+    features: []
+
   };
 
   // 'LABEL_DETECTION', //Detects labels in a video
@@ -26,12 +27,19 @@ async function analyzeFile(gcsUri) {
 
   if (process.env.ALL_FEATURES === 'true') {
     request.features = ['LABEL_DETECTION', 'SHOT_CHANGE_DETECTION', 'EXPLICIT_CONTENT_DETECTION', 'SPEECH_TRANSCRIPTION', 'TEXT_DETECTION', 'FACE_DETECTION', 'PERSON_DETECTION', 'LOGO_RECOGNITION'] //'OBJECT_TRACKING' is not enabled unless explicitely stated in request params given the additional latency it creates.
-    request.videoContext = {
-      speechTranscriptionConfig: {
-        languageCode: 'en-US',
-        enableAutomaticPunctuation: true,
-      },
-    }   
+    request.videoContext.speechTranscriptionConfig = {
+      languageCode: 'en-US',
+      enableAutomaticPunctuation: true,
+    }
+    request.videoContext.faceDetectionConfig = {
+      includeBoundingBoxes: true,
+      includeAttributes: true
+    }
+    request.videoContext.personDetectionConfig = {
+      includeBoundingBoxes: true,
+      includePoseLandmarks: true,
+      includeAttributes: true
+    }
   }
   
   if (process.env.FEATURE_LABEL_DETECTION === 'true'){
@@ -63,7 +71,7 @@ async function analyzeFile(gcsUri) {
     request.videoContext.faceDetectionConfig = {
         includeBoundingBoxes: true,
         includeAttributes: true
-      }
+    }
   }
 
   if (process.env.FEATURE_PERSON_DETECTION === 'true'){
