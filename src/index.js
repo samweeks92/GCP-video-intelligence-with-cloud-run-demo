@@ -4,7 +4,7 @@ const video = require('@google-cloud/video-intelligence').v1;
 const {BigQuery} = require('@google-cloud/bigquery');
 const {Storage} = require('@google-cloud/storage');
 
-async function analyzeFile(gcsUri, features) {
+async function analyzeFile(gcsUri) {
 
   // Creates a client
   const client = new video.VideoIntelligenceServiceClient();
@@ -19,11 +19,12 @@ async function analyzeFile(gcsUri, features) {
   // 'EXPLICIT_CONTENT_DETECTION' // Detects explicit content
   // 'SPEECH_TRANSCRIPTION' // transcribe speech in the video into text
   // 'TEXT_DETECTION' // Detects text in a video
-  // 'OBJECT_TRACKING' // like Lebel Detection but also provides bounding boxes of the locations of the objects
   // 'FACE_DETECTION' // looks for faces in a video
   // 'PERSON_DETECTION' // looks for people in a video
-  
-  if (!features || features === 'ALL') {
+  // 'LOGO_RECOGNITION // recognizes logos in a video
+  // 'OBJECT_TRACKING' // like Lebel Detection but also provides bounding boxes of the locations of the objects
+
+  if (process.env.ALL_FEATURES) {
     request.features = ['LABEL_DETECTION', 'SHOT_CHANGE_DETECTION', 'EXPLICIT_CONTENT_DETECTION', 'SPEECH_TRANSCRIPTION', 'TEXT_DETECTION', 'FACE_DETECTION', 'PERSON_DETECTION', 'LOGO_RECOGNITION'] //'OBJECT_TRACKING' is not enabled unless explicitely stated in request params given the additional latency it creates.
     request.videoContext = {
       speechTranscriptionConfig: {
@@ -33,19 +34,19 @@ async function analyzeFile(gcsUri, features) {
     }   
   }
   
-  if (features.includes('LABEL_DETECTION')){
+  if (process.env.FEATURE_LABEL_DETECTION){
     request.features.push('LABEL_DETECTION')
   }
 
-  if (features.includes('SHOT_CHANGE_DETECTION')){
+  if (process.envFEATURE_SHOT_CHANGE_DETECTION){
     request.features.push('SHOT_CHANGE_DETECTION')
   }
 
-  if (features.includes('EXPLICIT_CONTENT_DETECTION')){
+  if (process.env.FEATURE_EXPLICIT_CONTENT_DETECTION){
     request.features.push('EXPLICIT_CONTENT_DETECTION')
   }
   
-  if (features.includes('SPEECH_TRANSCRIPTION')){
+  if (process.env.FEATURE_SPEECH_TRANSCRIPTION){
     request.features.push('SPEECH_TRANSCRIPTION')
     request.videoContext = {
       speechTranscriptionConfig: {
@@ -55,16 +56,11 @@ async function analyzeFile(gcsUri, features) {
     }   
   }
 
-  if (features.includes('TEXT_DETECTION')){
+  if (process.env.FEATURE_TEXT_DETECTION){
     request.features.push('TEXT_DETECTION')
   }
 
-  if (features.includes('OBJECT_TRACKING')){
-    request.features.push('OBJECT_TRACKING')
-    request.locationId = 'us-east1' //recommended to use us-east1 for the best latency due to different types of processors used in this region and others
-  }
-
-  if (features.includes('FACE_DETECTION')){
+  if (process.env.FEATURE_FACE_DETECTION){
     request.features.push('FACE_DETECTION')
     request.videoContext.faceDetectionConfig = {
       speechTranscriptionConfig: {
@@ -74,7 +70,7 @@ async function analyzeFile(gcsUri, features) {
     }   
   }
 
-  if (features.includes('PERSON_DETECTION')){
+  if (process.env.FEATURE_PERSON_DETECTION){
     request.features.push('PERSON_DETECTION')
     request.videoContext.personDetectionConfig = {
       speechTranscriptionConfig: {
@@ -85,8 +81,13 @@ async function analyzeFile(gcsUri, features) {
     }   
   }
 
-  if (features.includes('LOGO_RECOGNITION')){
+  if (process.env.FEATURE_LOGO_RECOGNITION){
     request.features.push('LOGO_RECOGNITION')
+  }
+
+  if (process.env.FEATURE_OBJECT_TRACKING){
+    request.features.push('OBJECT_TRACKING')
+    request.locationId = 'us-east1' //recommended to use us-east1 for the best latency due to different types of processors used in this region and others
   }
 
   console.log('Analyzing file with Video Intelligence API...');
@@ -188,9 +189,9 @@ app.post('/*', async (req, res) => {
   const gcsUri = `gs://${bucketID}/${fileName}`
   console.log("SOURCE GCS OBJECT URI: ", gcsUri)
 
-  const features = req.originalUrl.toUpperCase().trim().replaceAll('-', '_').replace('/', '')
+  //const features = req.originalUrl.toUpperCase().trim().replaceAll('-', '_').replace('/', '')
 
-  await analyzeFile(gcsUri, features).then((annotationResults) => {
+  await analyzeFile(gcsUri).then((annotationResults) => {
     saveToGCS(annotationResults).then((uploadedFileDetails) => {
       saveToBigQuery(uploadedFileDetails).then((response) => {
         res.status(200).send(annotationResults)
