@@ -12,6 +12,9 @@ substitutions:
   _PLATFORM: managed
   _TARGET_REGION: europe-west2
   _PORT: '8080'
+  _OUTPUT_BUCKET_NAME: 'clip-insights'
+  _BQ_DATASET_ID: 'video_intelligence_output'
+  _BQ_DATASET_TABLE: 'video-intelligence-output'
   _ALL_FEATURES: 'false'
   _FEATURE_LABEL_DETECTION: 'true'
   _FEATURE_SHOT_CHANGE_DETECTION: 'true'

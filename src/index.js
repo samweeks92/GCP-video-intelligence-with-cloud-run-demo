@@ -3,12 +3,25 @@
 const video = require('@google-cloud/video-intelligence').v1;
 const {BigQuery} = require('@google-cloud/bigquery');
 const {Storage} = require('@google-cloud/storage');
+const express = require('express');
+
+// ------------------------------------------------------------------------
+// This section defines the async functions to implement the service:
+// 1. analyzeFile() takes the uploaded source file and sends it for an analysis request to the Video Intelligence API.
+// 2. saveToGCS() takes the JSON response from the Video Intelligence API as it's input and uploads to an output GCS Bucket.
+// 3. saveToBigQuery() requests a BigQuery upload Job to upload the Video Intelligence API response from the output GCS Bucket.  
+// ------------------------------------------------------------------------
 
 async function analyzeFile(gcsUri) {
 
-  // Creates a client
+  console.log('Analyzing file with Video Intelligence API...');
+  
   const client = new video.VideoIntelligenceServiceClient();
 
+  // ------------------------------------------------------------------------
+  // This section sets the Video Intelligence API's request object appropriately from the env vars
+  // ------------------------------------------------------------------------
+  
   const request = {
     inputUri: gcsUri,
     features: [],
@@ -96,25 +109,31 @@ async function analyzeFile(gcsUri) {
     request.locationId = 'us-east1' //recommended to use us-east1 for the best latency due to different types of processors used in this region and others
   }
 
-  console.log('Analyzing file with Video Intelligence API...');
   console.log('Using the following request parameters: ');
   console.log(request)
+
+  // ------------------------------------------------------------------------
+  // This section sends an async request to the Video Intelligence API and awaits and returns the JSON response
+  // ------------------------------------------------------------------------
 
   const [operation] = await client.annotateVideo(request);
   const [operationResult] = await operation.promise();
   const annotationResults = operationResult.annotationResults[0];
 
   return annotationResults
+
 }
 
 async function saveToGCS(annotationResults) {
+  
   console.log('saving to GCS...')
   
-  const bucketName = 'clip-insights'
+  const bucketName = process.env.OUTPUT_BUCKET_NAME
   const sourceFileName = annotationResults.inputUri.split('/').pop().split('.').shift()
   const timestamp = new Date().toLocaleString("en-GB", {timeZone: "GB"}).replaceAll(':','-').replaceAll(',','-').replaceAll('/','-').replaceAll(' ', '')
   const destFileName = sourceFileName + '-' + timestamp + '.json'
-  const contents = JSON.stringify(annotationResults).replaceAll('{}', '{"seconds":"0","nanos":0}')
+
+  const contents = JSON.stringify(annotationResults).replaceAll('{}', '{"seconds":"0","nanos":0}') // here we remove {} values for when there is no start time and replace with an equivalent {"seconds":"0","nanos":0} to help with the BQ schema
 
   const storage = new Storage();
   await storage.bucket(bucketName).file(destFileName).save(contents);
@@ -135,17 +154,17 @@ async function saveToBigQuery(uploadedFileDetails) {
   
   const bigquery = new BigQuery();
   const storage = new Storage();
+  
+  const datasetId = process.env.BQ_DATASET_ID;
+  const tableId = process.env.BQ_DATASET_TABLE;
 
   const bucketName = uploadedFileDetails.bucketName;
   const filename = uploadedFileDetails.destFileName;
 
-  const datasetId = "video_intelligence_output";
-  const tableId = "video-intelligence-output";
-
   const metadata = {
     sourceFormat: 'NEWLINE_DELIMITED_JSON',
     autodetect: true,
-    location: 'europe-west2',
+    location: process.env.DATA_LOCATION,
     createDisposition: 'CREATE_IF_NEEDED',
     writeDisposition: 'WRITE_APPEND',
     schemaUpdateOptions: ['ALLOW_FIELD_ADDITION', 'ALLOW_FIELD_RELAXATION']
@@ -157,20 +176,29 @@ async function saveToBigQuery(uploadedFileDetails) {
       .table(tableId)
       .load(storage.bucket(bucketName).file(filename), metadata);
 
-    console.log(`Job ${job.id} completed.`);
+    console.log(`BigQuery load Job ${job.id} has completed.`);
 
     return job
 
 }
 
+// ------------------------------------------------------------------------
+// This section sets up a web serving framework using the express module, with a single POST route that will execute when Pub/Sub Push subcription pushes the message to the Cloud Run endpoint.
+// ------------------------------------------------------------------------
 
-
-const express = require('express');
 const app = express();
 app.use(express.json());
 
+app.listen(process.env.PORT, () => {
+  console.log(`Listening on port ${process.env.PORT}`);
+});
+
 app.post('/*', async (req, res) => {
   
+  // ------------------------------------------------------------------------
+  // This section validates the request sent to Cloud Run is from Pub/Sub and is of the expected structure and notification type
+  // ------------------------------------------------------------------------
+
   if (!req.body) {
     const msg = 'no Pub/Sub message received';
     console.error(`error: ${msg}`);
@@ -188,30 +216,25 @@ app.post('/*', async (req, res) => {
     console.log('pubsub notification is referencing an object deletion. No new data to send to the Video Intelligence API')
     return ('', 204)
   }
+
+  // ------------------------------------------------------------------------
+  // This section validates the request sent to Cloud Run is from Pub/Sub and is of the expected structure and notification type
+  // ------------------------------------------------------------------------
   
   const bucketID = req.body.message.attributes.bucketId
   const fileName = req.body.message.attributes.objectId
 
   const gcsUri = `gs://${bucketID}/${fileName}`
-  console.log("SOURCE GCS OBJECT URI: ", gcsUri)
 
-  //const features = req.originalUrl.toUpperCase().trim().replaceAll('-', '_').replace('/', '')
-
-  await analyzeFile(gcsUri).then((annotationResults) => {
-    saveToGCS(annotationResults).then((uploadedFileDetails) => {
-      saveToBigQuery(uploadedFileDetails).then((response) => {
-        res.status(200).send(annotationResults)
+  // chain the async functions defined above
+  await analyzeFile(gcsUri).then((annotationResults) => { // call analyzeFile() asynchonously
+    saveToGCS(annotationResults).then((uploadedFileDetails) => { // call saveToGCS() asynchonously following promise fulfillment
+      saveToBigQuery(uploadedFileDetails).then(() => { // // call saveToBigQuery() asynchonously following promise fulfillment
+        res.status(200).send(annotationResults) // in the event of success, return 200 status and the Video Intelligence API results JSON as the response to express POST route
       })
-    })
-    
+    })  
+  }).catch((e) => {
+    console.log('e', e) // if the async functions throw any errors, these would be returned here
+  })
 
-}).catch((e) => {
-    console.log('e', e) // if the async function threw an error, this would be returned here
-})
-
-});
-
-const port = parseInt(process.env.PORT) || 8080;
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
 });
