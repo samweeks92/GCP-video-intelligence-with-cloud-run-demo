@@ -14,7 +14,7 @@ gcloud projects add-iam-policy-binding $DEPLOY_PROJECT_ID --member=serviceAccoun
 
 gcloud projects add-iam-policy-binding $DEPLOY_PROJECT_ID --member=serviceAccount:$DEPLOY_PROJECT_NUMBER@cloudbuild.gserviceaccount.com --role="roles/owner"
 
-gcloud beta builds triggers import --project=$DEPLOY_PROJECT_ID --source=build/triggers/task-app-trigger.yaml
+gcloud beta builds triggers import --project=$DEPLOY_PROJECT_ID --source=build/triggers/trigger.yaml
 
 
 
