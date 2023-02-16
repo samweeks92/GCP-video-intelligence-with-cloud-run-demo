@@ -48,12 +48,10 @@ async function analyzeFile(gcsUri) {
   
   if (process.env.FEATURE_SPEECH_TRANSCRIPTION === 'true'){
     request.features.push('SPEECH_TRANSCRIPTION')
-    request.videoContext = {
-      speechTranscriptionConfig: {
+    request.videoContext.speechTranscriptionConfig = {
         languageCode: 'en-US',
         enableAutomaticPunctuation: true,
-      },
-    }   
+      }
   }
 
   if (process.env.FEATURE_TEXT_DETECTION === 'true'){
@@ -63,21 +61,17 @@ async function analyzeFile(gcsUri) {
   if (process.env.FEATURE_FACE_DETECTION === 'true'){
     request.features.push('FACE_DETECTION')
     request.videoContext.faceDetectionConfig = {
-      speechTranscriptionConfig: {
         includeBoundingBoxes: true,
         includeAttributes: true
-      },
-    }   
+      }
   }
 
   if (process.env.FEATURE_PERSON_DETECTION === 'true'){
     request.features.push('PERSON_DETECTION')
     request.videoContext.personDetectionConfig = {
-      speechTranscriptionConfig: {
-        includeBoundingBoxes: true,
-        includePoseLandmarks: true,
-        includeAttributes: true
-      },
+      includeBoundingBoxes: true,
+      includePoseLandmarks: true,
+      includeAttributes: true
     }   
   }
 
