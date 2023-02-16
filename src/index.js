@@ -14,7 +14,7 @@ const express = require('express');
 
 async function analyzeFile(gcsUri) {
 
-  console.log(`"Analyzing file ${gcsUri} with Video Intelligence API..."`);
+  console.log(`Analyzing file ${gcsUri} with Video Intelligence API...`);
   
   const client = new video.VideoIntelligenceServiceClient();
 
@@ -109,8 +109,8 @@ async function analyzeFile(gcsUri) {
     request.locationId = 'us-east1' //recommended to use us-east1 for the best latency due to different types of processors used in this region and others
   }
 
-  console.log(`Using the following request parameters for file ${gcsUri} : `);
-  console.log(request)
+  console.log(`Analysing the following features for file ${gcsUri} :`);
+  console.log(request.features.toString())
 
   // ------------------------------------------------------------------------
   // This section sends an async request to the Video Intelligence API and awaits and returns the JSON response
