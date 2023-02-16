@@ -13,8 +13,6 @@ const express = require('express');
 // ------------------------------------------------------------------------
 
 async function analyzeFile(gcsUri) {
-
-  console.log(`Analyzing file ${gcsUri} with Video Intelligence API...`);
   
   const client = new video.VideoIntelligenceServiceClient();
 
@@ -109,7 +107,7 @@ async function analyzeFile(gcsUri) {
     request.locationId = 'us-east1' //recommended to use us-east1 for the best latency due to different types of processors used in this region and others
   }
 
-  console.log(`Analysing the following features for file ${gcsUri} :`);
+  console.log(`Analyzing file ${gcsUri} with Video Intelligence API with the following Features...`);
   console.log(request.features.toString())
 
   // ------------------------------------------------------------------------
