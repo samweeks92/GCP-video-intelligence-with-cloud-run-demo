@@ -11,8 +11,12 @@ async function analyzeFile(gcsUri) {
 
   const request = {
     inputUri: gcsUri,
-    features: []
-
+    features: [],
+    videoContext: {
+      speechTranscriptionConfig: {},
+      faceDetectionConfig: {},
+      personDetectionConfig: {}
+    }
   };
 
   // 'LABEL_DETECTION', //Detects labels in a video
